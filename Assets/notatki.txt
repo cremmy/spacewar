@@ -1,0 +1,29 @@
+Kolejność działania gierki:
+ 1. Tworzymy planszę
+ 2. Wstawiamy JEDEN universe i ustawiamy mu swiatlo
+ 3. Wstawiamy planety
+ 3. Wstawiamy inne space objecty
+ 3. Wstawiamy graczy
+ 	3.1 Graczy ma byc dwoch
+ 	3.2 Kazdy gracz ma miec inne playerID (pierwszy 0, drugi 1)
+ 	3.3 Kazdy z graczy ma swoja kamere. Kamera musi miec podpietego odpowiedniego gracza i _ustawiony viewport_
+ 4. Startujemy - universe zbierze wszystkie planety i spaceobjecty do swoich list
+ 
+W trakcie dzialania:
+ - Aby kolizje dzialaly, universe musi miec liste spaceobjektow - przy tworzeniu nowego warto skorzystac z universe.AddObject()
+ - Kolizje spaceobjectow z planetami -> gdy obiekt podleci blizej niz 75% radiusa, to jest niszczony
+ - Kolizje graczy z planetami -> gdy gracz podleci blizej niz 200% radiusa, pokazywany jest alert (planetalert na spaceshipie -> 0 gdy >200% radiusa, 1 gdy <=100%)
+ - Kolizje graczy z spaceobjectami -> gdy gracz podleci blizej niz 200% radiusa, pokazywany jest alert (objectalert) (0 gdy >200% radiusa, 1 gdy <=100%)
+ 
+Inne
+ - Spaceship ma:
+ 	- hp
+ 	- energie
+ 	- paliwo
+ 	- planetalert - stopien zagrozenia planeta
+ 	- objectalert - stopien zagrozenia obiektem
+ 	  ^ Powyzsze 5 to zmienne dostepne ot tak
+ 	- pociski
+ 	- rakiety
+ 	- miny
+ 	  ^ Powyzsze 3 sa dostepne pod GetAmmoGun(), GetAmmoRPG() oraz GetAmmoMine()
