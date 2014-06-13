@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Planet : MonoBehaviour 
 	{
@@ -7,8 +8,10 @@ public class Planet : MonoBehaviour
 	//public float shadow;	// Dlugosc cienia
 	
 	private float scaletoradius;
+	private ObjectWithRadius owr;
 	
-	ObjectWithRadius owr;
+	public Planet parent;
+	public List<Planet> children;
 	
 	// Use this for initialization
 	void Start () 
@@ -20,6 +23,9 @@ public class Planet : MonoBehaviour
 		scaletoradius=radius/owr.radius;
 		
 		print("Planet aspect: "+scaletoradius);
+		
+		if(parent)
+			parent.children.Add(this);
 		}
 	
 	// Update is called once per frame
@@ -28,19 +34,16 @@ public class Planet : MonoBehaviour
 		transform.localScale=new Vector3(1, 1, 1)*owr.radius*scaletoradius;
 		}
 		
-	void OnCollisionEnter(Collision collision)
-		{
-		GameObject o=collision.gameObject;
-		Spaceship ship=o.GetComponent<Spaceship>();
-		//SpaceObject so=o.GetComponent<SpaceObject>();
 		
-		if(ship!=null)
-			{
-			ship.hp=0.0f;
-			}
-		else
-			{
-			Destroy(o);
-			}
+	public Vector3 GetForceAt(Vector3 pos)
+		{
+		const float G=6.67f;
+		
+		Vector3 dir=transform.position-pos;
+		
+		if(dir.sqrMagnitude<1.0f)						// Bo planety, zrodla grawitacji, tez sa space objectami
+			return new Vector3(0.0f, 0.0f, 0.0f);		// A dzielenie przez zero nie jest fajne.
+		
+		return dir.normalized * G*mass/dir.sqrMagnitude;
 		}
 	}

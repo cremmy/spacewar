@@ -5,9 +5,7 @@ using System.Collections.Generic;
 public class Universe : MonoBehaviour 
 	{
 	// Normalnie jest *10^-11, ale nie ma sensu zostawiac tak malej liczby
-	// Pamietajcie jednak, aby masy obiektow robic odpowiednio mniejsze		
-	private const float G=6.67f;	
-							
+	// Pamietajcie jednak, aby masy obiektow robic odpowiednio mniejsze							
 	
 	private List<Planet> planets;
 	private List<SpaceObject> objects;
@@ -16,7 +14,7 @@ public class Universe : MonoBehaviour
 	public int asteroids;
 	public float fieldradius;
 	public Vector3 fieldcenter;
-	public GameObject asteroid;
+	public GameObject asteroid; 
 	
 	// Use this for initialization
 	void Start ()
@@ -26,13 +24,45 @@ public class Universe : MonoBehaviour
 		ships=new List<Spaceship>();
 		
 		// Znajdz wszystkie planety aktualnie w grze
+		// ...i ustaw poczatkowe szybkosci planet
 		var ps=GameObject.FindObjectsOfType<Planet>();
 		
 		print("Planets: "+ps.Length);
 		
 		foreach(var p in ps)
-			{			
+			{
 			planets.Add(p);
+			
+			// Znajdz 'rodzica'
+			if(p.parent || p.children.Count<1)
+				continue;
+				
+			List<Planet> stack=new List<Planet>();
+			
+			foreach(var c in p.children)
+				stack.Add(c);
+				
+			print("Liczba dzieci: "+stack.Count);
+				
+			while(stack.Count>0)
+				{
+				Planet child=stack[0];
+				stack.RemoveAt(0);
+				
+				Vector3 dir=child.transform.position-p.transform.position;
+				Vector3 f=p.GetForceAt(child.transform.position);
+				Matrix4x4 m=Matrix4x4.TRS(new Vector3(), Quaternion.Euler(0, 90, 0), new Vector3(1, 1, 1));
+				SpaceObject so=child.GetComponent<SpaceObject>();
+						
+				float v=Mathf.Sqrt(f.magnitude*dir.magnitude/p.mass)*20;
+				
+				print("Spd: "+v);
+				
+				so.spd+=m.MultiplyPoint3x4(dir.normalized)*v + child.parent.GetComponent<SpaceObject>().spd;
+				
+				foreach(var c in child.children)
+					stack.Add(c);
+				}
 			}
 			
 		// Znajdz wszystkie obiekty aktualnie w grze
@@ -45,7 +75,7 @@ public class Universe : MonoBehaviour
 			o.universe=this;
 			
 			objects.Add(o);
-			}
+			}		
 			
 		// Ustaw poczatkowa szybkosc graczy
 		var ss=GameObject.FindObjectsOfType<Spaceship>();
@@ -57,16 +87,13 @@ public class Universe : MonoBehaviour
 			Planet closest=GetClosest(s.transform.position);
 			
 			Vector3 dir=s.transform.position-closest.transform.position;
-			float dist=dir.magnitude;
-			
-			Vector3 f=dir.normalized * G*closest.mass/dir.sqrMagnitude;
+			Vector3 f=closest.GetForceAt(s.transform.position);
 			Matrix4x4 m=Matrix4x4.TRS(new Vector3(), Quaternion.Euler(0, 90, 0), new Vector3(1, 1, 1));
-			
-			float v=Mathf.Sqrt(f.magnitude*dist/closest.mass);
-			
 			SpaceObject so=s.GetComponent<SpaceObject>();
 			
-			so.spd+=m.MultiplyPoint3x4(dir.normalized)*v;
+			float v=Mathf.Sqrt(f.magnitude*dir.magnitude/closest.mass);
+			
+			so.spd+=m.MultiplyPoint3x4(dir.normalized)*v + closest.GetComponent<SpaceObject>().spd;
 			so.transform.LookAt(closest.transform.position);
 			
 			ships.Add(s);
@@ -92,6 +119,11 @@ public class Universe : MonoBehaviour
 		CheckCollisions();
 		}
 		
+	void OnDrawGizmos()
+		{
+		Gizmos.DrawWireSphere(fieldcenter, fieldradius);
+		}
+		
 	public Vector3 GetForceAt(Vector3 pos)
 		{
 		Vector3 ret=new Vector3(0, 0, 0);
@@ -101,12 +133,7 @@ public class Universe : MonoBehaviour
 			if(!p)
 				continue;
 			
-			Vector3 dir=p.transform.position-pos;
-			
-			if(dir.sqrMagnitude<1.0f)	// Bo planety, zrodla grawitacji, tez sa space objectami
-				continue;				// A dzielenie przez zero nie jest fajne.
-			
-			ret+=dir.normalized * G*p.mass/dir.sqrMagnitude;	// sqrMag bo r^2
+			ret+=p.GetForceAt(pos);
 			}
 			
 		//print("count "+planets.Count+"; force "+ret);
@@ -438,15 +465,15 @@ public class Universe : MonoBehaviour
 		
 		float vn=Vector3.Dot(vrel, mtv.normalized);
 		
-		if(vn<0.0f)
+		if(vn>0.0f)
 			return;
 			
 		const float RESTITUTION=0.6f;
 			
-		float i=-((1.0f+RESTITUTION)*vn)/2.0f;
+		float i=-vn*RESTITUTION;
 		
-		a.spd+=i*mtv.normalized;
-		b.spd-=i*mtv.normalized;
+		a.spd-=i*mtv.normalized;
+		b.spd+=i*mtv.normalized;
 		}
 		
 	private void CreateAsteridField(int asteroids, float radius, GameObject asteroid)
