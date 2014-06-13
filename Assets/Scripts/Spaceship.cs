@@ -55,7 +55,7 @@ public class Spaceship : MonoBehaviour
 		public virtual void Update(float energy)
 			{
 			this.ammo=Mathf.Min(max, ammo+regen*energy*Time.deltaTime);
-			
+			parent.energyLabel.text = "Energia: " + Mathf.Round(ammo * 100).ToString() + "%";
 			if(delaycounter>0.0f)
 				delaycounter-=Time.deltaTime;
 			}
@@ -201,6 +201,10 @@ public class Spaceship : MonoBehaviour
 	
 	public float planetalert;
 	public float objectalert;
+
+	public GUIText fuelLabel;
+	public GUIText energyLabel;
+	public GUIText hpLabel;
 	
 	// Amunicja
 	// Calosci oznaczaja pelny pocisk, czesc ulamkowa jest do generowania kolejnych pociskow
@@ -212,7 +216,7 @@ public class Spaceship : MonoBehaviour
 	void Start () 
 		{
 		so=GetComponent<SpaceObject>();
-		
+		hpLabel.text = "Życie: " + Mathf.Round (hp * 100).ToString () + "%";
 		gun=new WeaponGun(this, bulletBase, BULLET_MAX, BULLET_REGEN, BULLET_RECOIL, BULLET_SHOOT_DELAY, BULLET_INITIAL_SPEED);
 		rpg=new WeaponRPG(this, rocketBase, ROCKET_MAX, ROCKET_REGEN, ROCKET_RECOIL, ROCKET_SHOOT_DELAY);
 		mine=new WeaponMine(this, laserBase, MINE_MAX, MINE_REGEN, MINE_RECOIL, MINE_SHOOT_DELAY);
@@ -310,7 +314,8 @@ public class Spaceship : MonoBehaviour
 		
 		// Regeneracja paliwa;
 		fuel=   Mathf.Min(1.0f, fuel+FUEL_REGEN*Time.deltaTime*energy);
-		
+		this.fuelLabel.text = "Paliwo: " + Mathf.Round(fuel * 100).ToString() + "%";
+
 		// Regeneracja amunicji
 		gun.Update(energy);
 		rpg.Update(energy);
@@ -326,6 +331,7 @@ public class Spaceship : MonoBehaviour
 		
 		fuel-=FUEL_USAGE*Time.deltaTime;
 		so.spd+=transform.forward*Time.deltaTime*THRUST;
+		this.fuelLabel.text = "Paliwo: " + Mathf.Round(fuel * 100).ToString() + "%";
 		}
 		
 	public int GetAmmoGun() {return (int)gun.ammo;}

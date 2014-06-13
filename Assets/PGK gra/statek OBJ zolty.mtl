@@ -1,0 +1,16 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 05.06.2014 13:56:06
+
+newmtl 01___Default
+	Ns 47.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.6980 0.6980 0.7020
+	Kd 0.6980 0.6980 0.7020
+	Ks 0.7881 0.7062 0.4879
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\Users\Dawid\Desktop\PGK gra\statek_tekstura.jpg
+	map_Kd C:\Users\Dawid\Desktop\PGK gra\statek_tekstura.jpg

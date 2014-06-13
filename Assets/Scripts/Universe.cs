@@ -377,10 +377,13 @@ public class Universe : MonoBehaviour
 		float pr=planet.GetComponent<ObjectWithRadius>().radius;
 		float dist=(planet.transform.position-ship.transform.position).magnitude;
 		
-		if(dist>pr*0.7f)
-			ship.hp-=(1.0f-(dist-pr*0.7f)/(pr*0.7f))*Time.deltaTime;
-		else
-			ship.hp=0.0f;
+		if (dist > pr * 0.7f) {
+						ship.hp -= (1.0f - (dist - pr * 0.7f) / (pr * 0.7f)) * Time.deltaTime;
+						ship.hpLabel.text = "Życie: " + Mathf.Round (ship.hp * 100).ToString () + "%";
+				} else {
+						ship.hp = 0.0f;
+						ship.hpLabel.text = "Życie: " + Mathf.Round (ship.hp * 100).ToString () + "%";
+				}
 		}
 		
 	private void Collide(Spaceship ship, Projectile projectile)
@@ -400,10 +403,12 @@ public class Universe : MonoBehaviour
 		if(vrel<pv)
 			{
 			ship.hp-=vrel*projectile.damage;
+			ship.hpLabel.text = "Życie: " + Mathf.Round (ship.hp * 100).ToString () + "%";
 			}
 		else
 			{
 			ship.hp-=(vrel-1.0f)*0.2f*projectile.damage + projectile.damage;
+			ship.hpLabel.text = "Życie: " + Mathf.Round (ship.hp * 100).ToString () + "%";
 			}
 		
 		Collide(sso, pso);
@@ -420,6 +425,7 @@ public class Universe : MonoBehaviour
 		Vector3 vrel=objv-shipv;
 		
 		ship.hp-=0.1f*vrel.magnitude;
+		ship.hpLabel.text = "Życie: " + Mathf.Round (ship.hp * 100).ToString () + "%";
 		
 		Collide(sso, obj);
 		}
